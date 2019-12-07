@@ -14,9 +14,9 @@ fn machine(input: i32, program: &[i32]) -> i32 {
     let mut output = 0;
     loop {
         let opcode = format!("{:05}", array[pos]);
-        let param_one = array[pos + 1];
-        let param_two = array[pos + 2];
-        let param_three = array[pos + 3];
+        let param_one = *array.get(pos + 1).unwrap_or(&0);
+        let param_two = *array.get(pos + 2).unwrap_or(&0);
+        let param_three = *array.get(pos + 3).unwrap_or(&0);
         let mut mode = [false, false, false];
         match &opcode[2..3] {
             "0" => mode[0] = true,
@@ -69,7 +69,44 @@ fn machine(input: i32, program: &[i32]) -> i32 {
                 pos += 2
             }
             "05" => {
-                
+                let first = load(mode[0], param_one, &array);
+                let second = load(mode[1], param_two, &array);
+                if first != 0 {
+                    pos = second as usize;
+                } else {
+                    pos += 3;
+                }
+            }
+            "06" => {
+                let first = load(mode[0], param_one, &array);
+                let second = load(mode[1], param_two, &array);
+                if first == 0 {
+                    pos = second as usize;
+                } else {
+                    pos += 3;
+                }
+            }
+            "07" => {
+                let first = load(mode[0], param_one, &array);
+                let second = load(mode[1], param_two, &array);
+                let position = array[pos + 3] as usize;
+                if first < second {
+                    array[position] = 1;
+                } else {
+                    array[position] = 0;
+                }
+                pos += 4;
+            }
+            "08" => {
+                let first = load(mode[0], param_one, &array);
+                let second = load(mode[1], param_two, &array);
+                let position = array[pos + 3] as usize;
+                if first == second {
+                    array[position] = 1;
+                } else {
+                    array[position] = 0;
+                }
+                pos += 4;
             }
             "99" => break,
             _ => panic!(),
