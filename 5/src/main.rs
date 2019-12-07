@@ -17,24 +17,30 @@ fn machine(input: i32, program: &[i32]) -> i32 {
         let param_one = *array.get(pos + 1).unwrap_or(&0);
         let param_two = *array.get(pos + 2).unwrap_or(&0);
         let param_three = *array.get(pos + 3).unwrap_or(&0);
-        let mut mode = [false, false, false];
-        match &opcode[2..3] {
-            "0" => mode[0] = true,
-            "1" => mode[0] = false,
-            _ => panic!(),
-        }
-        match &opcode[1..2] {
-            "0" => mode[1] = true,
-            "1" => mode[1] = false,
-            _ => panic!(),
-        }
-        match &opcode[0..1] {
-            "0" => mode[2] = true,
-            "1" => mode[2] = false,
-            _ => panic!(),
-        }
+        let mode = [
+            {
+                match &opcode[2..3] {
+                    "0" => true,
+                    "1" => false,
+                    _ => panic!(),
+                }
+            },
+            {
+                match &opcode[1..2] {
+                    "0" => true,
+                    "1" => false,
+                    _ => panic!(),
+                }
+            },
+            {
+                match &opcode[0..1] {
+                    "0" => true,
+                    "1" => false,
+                    _ => panic!(),
+                }
+            },
+        ];
         let op = &opcode[3..5];
-        let _x = 5;
         match op {
             "01" => {
                 let first = load(mode[0], param_one, &array);
@@ -115,7 +121,7 @@ fn machine(input: i32, program: &[i32]) -> i32 {
     output
 }
 
-fn load (mode_bool: bool, param: i32, array: &[i32]) -> i32 {
+fn load(mode_bool: bool, param: i32, array: &[i32]) -> i32 {
     if mode_bool {
         array[param as usize]
     } else {
