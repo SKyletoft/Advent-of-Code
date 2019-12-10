@@ -3,7 +3,7 @@ fn main() {
     part_two(&input_string);
 }
 
-fn part_two (input_string: &str) {
+fn part_two(input_string: &str) {
     let mut to_me = vec!["YOU".to_string()];
     let mut to_father_christmas = vec!["SAN".to_string()];
     from_planet_to_star(input_string, "YOU", &mut to_me);
@@ -18,15 +18,15 @@ fn part_two (input_string: &str) {
     }
 }
 
-fn from_planet_to_star (input_string: &str, planet: &str, orbits: &mut Vec<String>) {
+fn from_planet_to_star(input_string: &str, planet: &str, orbits: &mut Vec<String>) {
     for orbit in input_string.lines().filter(|line| &line[4..7] == planet) {
         orbits.push(orbit[0..3].to_string());
         from_planet_to_star(input_string, &orbit[0..3], orbits);
         break;
-    };
+    }
 }
 
-fn part_one (input_string: &str) {
+fn part_one(input_string: &str) {
     let mut map = std::collections::HashMap::new();
     for line in input_string.lines() {
         map.insert(line[4..7].to_string(), 0);
