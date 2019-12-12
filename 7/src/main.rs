@@ -1,66 +1,92 @@
 fn main() {
-    
     let input = include_str!("input.txt");
     let array: Vec<i32> = input
         .split(',')
         .map(|number| number.parse::<i32>().unwrap())
         .collect();
-    
-    part_one(&array);
+    part_two(&array);
 }
 
-fn part_two (array: &Vec<i32>) {
-
+fn part_two(array: &Vec<i32>) {
     let array = vec![
+        3, 52, 1001, 52, -5, 52, 3, 53, 1, 52, 56, 54, 1007, 54, 5, 55, 1005, 55, 26, 1001, 54, -5,
+        54, 1105, 1, 12, 1, 53, 54, 53, 1008, 54, 0, 55, 1001, 55, 1, 55, 2, 53, 55, 53, 4, 53,
+        1001, 56, -1, 56, 1005, 56, 6, 99, 0, 0, 0, 0, 10,
+    ];
+
+    /*vec![
         3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001, 28, -1, 28,
         1005, 28, 6, 99, 0, 0, 5,
-    ];
+    ];*/
     //let order = [9, 8, 7, 6, 5];
     let mut mem_a = array.clone();
     let mut mem_b = array.clone();
     let mut mem_c = array.clone();
     let mut mem_d = array.clone();
     let mut mem_e = array.clone();
-    
     let mut io_a = vec![9, 0];
     let mut io_b = vec![8];
     let mut io_c = vec![7];
     let mut io_d = vec![6];
     let mut io_e = vec![5];
 
-    let mut pos = [0,0,0,0,0];
+    let mut pos = [0, 0, 0, 0, 0];
 
     loop {
         let mut done = true;
         if io_a.len() > 0 {
+            println!("A");
+            if mem_a[pos[0]] == 99 {
+                pos[0] = 0;
+            }
             done = false;
             machine(&mut io_a, &mut mem_a, &mut io_b, &mut pos[0]);
         }
         if io_b.len() > 0 {
+            println!("B");
+            if mem_b[pos[1]] == 99 {
+                pos[1] = 0;
+            }
             done = false;
             machine(&mut io_b, &mut mem_b, &mut io_c, &mut pos[1]);
         }
         if io_c.len() > 0 {
+            println!("C");
+            if mem_c[pos[2]] == 99 {
+                pos[2] = 0;
+            }
             done = false;
             machine(&mut io_c, &mut mem_c, &mut io_d, &mut pos[2]);
         }
         if io_d.len() > 0 {
+            println!("D");
+            if mem_d[pos[3]] == 99 {
+                pos[3] = 0;
+            }
             done = false;
             machine(&mut io_d, &mut mem_d, &mut io_e, &mut pos[3]);
         }
         if io_e.len() > 0 {
+            println!("E");
+            if mem_e[pos[4]] == 99 {
+                pos[4] = 0;
+            }
             done = false;
             println!("{}", io_e[0]);
             machine(&mut io_e, &mut mem_e, &mut io_a, &mut pos[4]);
+            if mem_e[pos[4]] == 99 {
+                println!("E ended {:?}", io_e);
+                break;
+            }
         }
-        println!("{}, {}, {}, {}, {}", io_a.len(), io_b.len(), io_c.len(), io_d.len(), io_e.len());
         if done {
             break;
         }
     }
+    println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}", io_a, io_b, io_c, io_d, io_e);
 }
 
-fn part_one (array: &Vec<i32>) {
+fn part_one(array: &Vec<i32>) {
     let mut record = 0;
     let mut record_order = Vec::with_capacity(0);
     let numbers: Vec<i32> = (0..5).collect();
@@ -69,7 +95,12 @@ fn part_one (array: &Vec<i32>) {
         let mut second = 0;
         for amp in order.iter() {
             let mut out = Vec::new();
-            machine(&mut vec![*amp, second], &mut array.clone(), &mut out, &mut 0);
+            machine(
+                &mut vec![*amp, second],
+                &mut array.clone(),
+                &mut out,
+                &mut 0,
+            );
             second = out[out.len() - 1];
         }
         if second > record {
@@ -139,7 +170,19 @@ fn machine(input: &mut Vec<i32>, array: &mut [i32], output: &mut Vec<i32>, pos: 
                     array[position] = sum;
                 }
                 *pos += 4;
-                println!("add {} {} -> {}{}", first, second, {if mode[2] {""} else {"*"}}, param_three);
+                println!(
+                    "add {} {} -> {}{}",
+                    first,
+                    second,
+                    {
+                        if mode[2] {
+                            ""
+                        } else {
+                            "*"
+                        }
+                    },
+                    param_three
+                );
                 continue;
             }
             "02" => {
@@ -153,7 +196,19 @@ fn machine(input: &mut Vec<i32>, array: &mut [i32], output: &mut Vec<i32>, pos: 
                     array[position] = sum;
                 }
                 *pos += 4;
-                println!("mul {} {} -> {}{}", first, second, {if mode[2] {""} else {"*"}}, param_three);
+                println!(
+                    "mul {} {} -> {}{}",
+                    first,
+                    second,
+                    {
+                        if mode[2] {
+                            ""
+                        } else {
+                            "*"
+                        }
+                    },
+                    param_three
+                );
                 continue;
             }
             "03" => {
@@ -229,6 +284,7 @@ fn machine(input: &mut Vec<i32>, array: &mut [i32], output: &mut Vec<i32>, pos: 
                 }
                 *pos += 4;
                 println!("eq {} {} -> {}", first, second, position);
+                continue;
             }
             "99" => break,
             _ => panic!(),
