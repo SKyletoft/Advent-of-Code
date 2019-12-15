@@ -1,0 +1,4 @@
+Planet::new(8, 0, 8),
+Planet::new(0, -5, -10),
+Planet::new(16, 10, -5),
+Planet::new(19, -10, -7)
