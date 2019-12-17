@@ -1,20 +1,85 @@
+use std::collections::HashMap;
+
 fn main() -> Result<(), ()> {
-    let input = include_str!("input7.txt");
+    let input = include_str!("input.txt");
     let array: Vec<i64> = input
         .split(',')
         .map(|number| number.parse::<i64>().unwrap())
         .collect();
     let mut machine = Machine {
         memory: array,
-        input: vec![1],
+        input: vec![],
         output: vec![],
         instruction_pointer: 0,
         relative_base: 0,
         end: false,
     };
-    let result = machine.run_continuously()?;
-    println!("{}", result);
+
+    let res = part_one(&mut machine)?;
+
+    println!("{}", res);
     Ok(())
+}
+
+fn part_one(machine: &mut Machine) -> Result<usize,()> {
+    let mut coords = (0,0);
+    let mut facing = (0,-1);
+    let mut shell: HashMap<(i64, i64), i64> = HashMap::new();
+    shell.insert((0,0), 1);
+    while !machine.end {
+        let current_tile = *shell.get(&coords).unwrap_or(&0);
+        machine.input.push(current_tile as i64);
+        let first = machine.run_till_out()?;
+        let second = machine.run_till_out()?;
+        shell.insert(coords, first);
+        facing = turn(facing, second == 1);
+        coords.0 += facing.0;
+        coords.1 += facing.1;
+    }
+    part_two(&shell);
+    Ok(shell.len() - 1)
+}
+
+fn part_two(shell: &HashMap<(i64, i64), i64>) {
+    let mut canvas: Vec<Vec<i64>> = Vec::new();
+    let mut min_x = shell
+        .keys()
+        .map(|i| i.0)
+        .min()
+        .unwrap_or(0);
+    let mut min_y = shell
+        .keys()
+        .map(|i| i.1)
+        .min()
+        .unwrap_or(0);
+    for (indices, colour) in shell.iter() {
+        let (x, y) = ((indices.0 - min_x) as usize, (indices.1 - min_y) as usize);
+        while canvas.len() <= x {
+            canvas.push(Vec::new());
+        }
+        while canvas[x].len() <= y {
+            canvas[x].push(0);
+        }
+        canvas[x][y] = *colour;
+    }
+    for line in canvas.iter() {
+        for column in line.iter() {
+            if *column == 1 {
+                print!("O");
+            } else {
+                print!(" ");
+            }
+        }
+        println!();
+    }
+}
+
+fn turn (currently: (i64, i64), turn_right: bool) -> (i64, i64) {
+    if turn_right {
+        (currently.1, currently.0 * -1)
+    } else {
+        (currently.1 * -1, currently.0)
+    }
 }
 
 #[derive(Debug)]
@@ -192,6 +257,12 @@ impl Machine {
             self.cycle()?;
         }
         Ok(self.output[self.output.len() - 1])
+    }
+    fn run_till_out(&mut self) -> Result<i64, ()> {
+        while self.output.len() == 0 && !self.end {
+            self.cycle()?;
+        }
+        Ok(self.output.pop().unwrap_or(0))
     }
 }
 
