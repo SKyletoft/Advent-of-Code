@@ -21,11 +21,11 @@ fn main() -> Result<(), ()> {
     Ok(())
 }
 
-fn part_one(machine: &mut Machine) -> Result<usize,()> {
-    let mut coords = (0,0);
-    let mut facing = (0,-1);
+fn part_one(machine: &mut Machine) -> Result<usize, ()> {
+    let mut coords = (0, 0);
+    let mut facing = (0, -1);
     let mut shell: HashMap<(i64, i64), i64> = HashMap::new();
-    shell.insert((0,0), 1);
+    shell.insert((0, 0), 1);
     while !machine.end {
         let current_tile = *shell.get(&coords).unwrap_or(&0);
         machine.input.push(current_tile as i64);
@@ -42,16 +42,8 @@ fn part_one(machine: &mut Machine) -> Result<usize,()> {
 
 fn part_two(shell: &HashMap<(i64, i64), i64>) {
     let mut canvas: Vec<Vec<i64>> = Vec::new();
-    let mut min_x = shell
-        .keys()
-        .map(|i| i.0)
-        .min()
-        .unwrap_or(0);
-    let mut min_y = shell
-        .keys()
-        .map(|i| i.1)
-        .min()
-        .unwrap_or(0);
+    let min_x = shell.keys().map(|i| i.0).min().unwrap_or(0);
+    let min_y = shell.keys().map(|i| i.1).min().unwrap_or(0);
     for (indices, colour) in shell.iter() {
         let (x, y) = ((indices.0 - min_x) as usize, (indices.1 - min_y) as usize);
         while canvas.len() <= x {
@@ -74,7 +66,7 @@ fn part_two(shell: &HashMap<(i64, i64), i64>) {
     }
 }
 
-fn turn (currently: (i64, i64), turn_right: bool) -> (i64, i64) {
+fn turn(currently: (i64, i64), turn_right: bool) -> (i64, i64) {
     if turn_right {
         (currently.1, currently.0 * -1)
     } else {
@@ -215,7 +207,7 @@ impl Machine {
                 let second = self.get_memory(arg2)?;
                 if first < second {
                     self.write_memory(arg3, 1);
-                    //println!("less {}:{} {}:{} 1:{}", first, arg1, second, arg2, arg3);
+                //println!("less {}:{} {}:{} 1:{}", first, arg1, second, arg2, arg3);
                 } else {
                     self.write_memory(arg3, 0);
                     //println!("less {}:{} {}:{} 0:{}", first, arg1, second, arg2, arg3);
@@ -230,7 +222,7 @@ impl Machine {
                 let second = self.get_memory(arg2)?;
                 if first == second {
                     self.write_memory(arg3, 1);
-                    //println!("eq {}:{} {}:{} 1:{}", first, arg1, second, arg2, arg3);
+                //println!("eq {}:{} {}:{} 1:{}", first, arg1, second, arg2, arg3);
                 } else {
                     self.write_memory(arg3, 0);
                     //println!("eq {}:{} {}:{} 0:{}", first, arg1, second, arg2, arg3);
