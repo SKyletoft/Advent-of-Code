@@ -21,9 +21,8 @@ fn main() -> Result<(), ()> {
 }
 
 fn part_one(machine: &mut Machine) -> Result<usize, ()> {
-    use crossterm::{cursor, event::*, style, style::Colorize, QueueableCommand};
+    use crossterm::{cursor, style, style::Colorize, QueueableCommand};
     use std::io::{stdout, Write};
-    use std::time::Duration;
     let mut stdout = stdout();
     let _ = stdout
         .queue(crossterm::terminal::EnterAlternateScreen)
@@ -31,36 +30,24 @@ fn part_one(machine: &mut Machine) -> Result<usize, ()> {
         .flush();
     let mut score = 0;
     let mut loops = 0;
+    let mut ball = 0;
+    let mut paddle = 0;
+    let mut same = 1;
     while !machine.end {
-        if loops > (40 * 25) {
-            let to_add = {
-                use crossterm::event::*;
-                let event;
-                'reading: loop {
-                    match read().unwrap() {
-                        Event::Key(key) => {
-                            if key.code == KeyCode::Char('a') {
-                                event = -1;
-                                break 'reading;
-                            } else if key.code == KeyCode::Char('d') {
-                                event = 1;
-                                break 'reading;
-                            } else {
-                                event = 0;
-                                break 'reading;
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-                event
-            };
-            if to_add != 0 {
-                machine.input.push(to_add);
+        if machine.input.len() == 1 && loops > 1030 {
+            if paddle < ball {
+                same = 1;
             }
+            if paddle > ball {
+                same = -1;
+            }
+            if paddle == ball {
+                same = 0;
+            }
+            machine.input[0] = same;
         }
-        if machine.input.iter().sum::<i64>() == 0 {
-            machine.input.clear();
+        if machine.input.len() == 0 {
+            machine.input.push(0);
         }
         loops += 1;
         let first = machine.run_till_out()?;
@@ -76,20 +63,21 @@ fn part_one(machine: &mut Machine) -> Result<usize, ()> {
                     0 => "█".black(),  //empty
                     1 => "█".white(),  //wall
                     2 => "█".yellow(), //block
-                    3 => "█".blue(),   //paddle
-                    4 => "█".red(),    //ball
+                    3 => {
+                        paddle = first;
+                        "█".blue()
+                    } //paddle
+                    4 => {
+                        ball = first;
+                        "█".red()
+                    } //ball
                     _ => panic!(),
                 }))
                 .unwrap()
-                .queue(cursor::MoveTo(0, 30))
-                .unwrap()
-                .queue(style::Print("                "))
-                .unwrap()
-                .queue(cursor::MoveTo(0, 30))
-                .unwrap()
-                .queue(style::Print(format!("{:?}", machine.input)))
-                .unwrap()
                 .flush();
+        }
+        if loops > 1000 {
+            std::thread::sleep_ms(5);
         }
     }
     /*let _ = stdout
