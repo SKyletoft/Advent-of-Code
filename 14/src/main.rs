@@ -1,19 +1,24 @@
 //use std::collections::HashMap;
 
 fn main() {
-    let input = "9 ORE => 2 A\n8 ORE => 3 B\n7 ORE => 5 C\n3 A, 4 B => 1 AB\n5 B, 7 C => 1 BC\n4 C, 1 A => 1 CA\n2 AB, 3 BC, 4 CA => 1 FUEL";//include_str!("input.txt");
+    let input = "9 ORE => 2 A\n8 ORE => 3 B\n7 ORE => 5 C\n3 A, 4 B => 1 AB\n5 B, 7 C => 1 BC\n4 C, 1 A => 1 CA\n2 AB, 3 BC, 4 CA => 1 FUEL"; //include_str!("input.txt");
     let interpreted: Vec<Reaction> = input.lines().map(|line| Reaction::new(line)).collect();
-    
     let result = part_one(&interpreted);
     println!("{}", result);
 }
 
-fn part_one (reactions: &[Reaction]) -> i32 {
+fn part_one(reactions: &[Reaction]) -> i32 {
     let mut to_find = vec![(1, "FUEL")];
     loop {
-        let index = reactions.iter().position(|reaction| reaction.result_name == to_find[0].1).unwrap();
+        let index = reactions
+            .iter()
+            .position(|reaction| reaction.result_name == to_find[0].1)
+            .unwrap();
         for item in reactions[index].requirements.iter() {
-            to_find.push((item.0 * to_find[0].0, &item.1, ));
+            to_find.push((
+                ((item.0 * to_find[0].0) as f64 / reactions[index].result_count as f64).ceil() as i32,
+                &item.1
+            ));
         }
         to_find.remove(0);
         if to_find[0].1 == "ORE" {
@@ -22,6 +27,7 @@ fn part_one (reactions: &[Reaction]) -> i32 {
         if to_find.len() == 0 {
             panic!();
         }
+        println!("{:?}", to_find);
     }
     to_find[0].0
 }
@@ -41,21 +47,17 @@ impl Reaction {
             .split(", ")
             .map(|req| {
                 let mut split = req.split(" ");
-                println!("REQ: [{}]", req);
-                let first = split.next().unwrap();
-                let second = split.next().unwrap();
-                println!("{}-\n{}-", first, second);
                 (
-                    first.parse::<i32>().unwrap(),
-                    String::from(second),
+                    split.next().unwrap().parse::<i32>().unwrap(),
+                    String::from(split.next().unwrap()),
                 )
             })
             .collect();
-        let (name, count) = {
+        let (count, name) = {
             let mut split = initial_split.next().unwrap().split(" ");
             (
-                String::from(split.next().unwrap()),
                 split.next().unwrap().parse::<i32>().unwrap(),
+                String::from(split.next().unwrap()),
             )
         };
 
