@@ -11,7 +11,7 @@ fn part_one(reactions: &[Reaction]) -> i32 {
     let mut inventory: HashMap<&str, i32> = HashMap::new();
     inventory.insert("FUEL", -1);
     inventory.insert("ORE", i32::max_value());
-    let mut in_inventory = vec!["FUEL"];
+    let mut in_inventory = vec!["FUEL", "ORE"];
     while *inventory.values().min().unwrap_or(&0) < 0 {
         for i in 0..in_inventory.len() {
             let amount = inventory.get(in_inventory[i]).unwrap_or(&0);
