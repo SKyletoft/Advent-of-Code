@@ -1,24 +1,22 @@
 use std::collections::HashMap;
 
 fn main() {
-    for _ in 0..10000 {
-        let input = include_str!("input7.txt");
-        let array: Vec<i64> = input
-            .split(',')
-            .map(|number| number.parse::<i64>().unwrap())
-            .collect();
-        let mut program = HashMap::new();
-        for (index, data) in array.iter().enumerate() {
-            program.insert(index, *data);
-        }
-        part_one(&program);
+    let input = include_str!("input5.txt");
+    let array: Vec<i64> = input
+        .split(',')
+        .map(|number| number.parse::<i64>().unwrap())
+        .collect();
+    let mut program = HashMap::new();
+    for (index, data) in array.iter().enumerate() {
+        program.insert(index, *data);
     }
+    part_one(&program);
 }
 
 fn part_one(program: &HashMap<usize, i64>) {
     let mut out = Vec::new();
-    machine(&mut vec![1], &mut program.clone(), &mut out, &mut 0, &mut 0);
-    //println!("{:?}", out);
+    machine(&mut vec![5], &mut program.clone(), &mut out, &mut 0, &mut 0);
+    println!("{:?}", out);
 }
 
 fn machine(

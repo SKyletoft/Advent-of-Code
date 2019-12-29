@@ -1,20 +1,53 @@
 fn main() -> Result<(), ()> {
-    let input = include_str!("input5.txt");
+    let input = include_str!("input.txt");
     let array: Vec<i64> = input
+        .lines()
+        .next()
+        .unwrap()
         .split(',')
         .map(|number| number.parse::<i64>().unwrap())
         .collect();
     let mut machine = Machine {
         memory: array,
-        input: vec![5],
+        input: vec![],
         output: vec![],
         instruction_pointer: 0,
         relative_base: 0,
         end: false,
     };
-    let result = machine.run_continuously()?;
+
+    let result = part_one(&mut machine);
     println!("{}", result);
+
     Ok(())
+}
+
+fn part_one(machine: &mut Machine) -> i64 {
+    let _ = machine.run_continuously();
+    let out_raw = machine.output.clone();
+    let mut out_string = String::with_capacity(out_raw.len());
+    for number in out_raw.iter() {
+        out_string.push((*number as u8) as char);
+    }
+    let mut intersections = Vec::new();
+    let by_lines: Vec<Vec<char>> = out_string
+        .lines()
+        .map(|line| line.chars().collect())
+        .collect();
+    for x in 1..by_lines.len() - 2 {
+        for y in 1..by_lines[x].len() - 1 {
+            if by_lines[x][y] == '#'
+                && by_lines[x - 1][y] == '#'
+                && by_lines[x + 1][y] == '#'
+                && by_lines[x][y - 1] == '#'
+                && by_lines[x][y + 1] == '#'
+            {
+                intersections.push((x, y));
+            }
+        }
+    }
+    println!("{}", out_string);
+    intersections.iter().map(|(x, y)| x * y).sum::<usize>() as i64
 }
 
 #[derive(Debug)]
@@ -106,10 +139,14 @@ impl Machine {
             }
             "03" => {
                 let first = self.load_argument(1)?;
-                self.write_memory(first, self.input[0]);
-                //println!("in  {}:{}", self.input[0], first);
-                self.input.remove(0);
-                self.instruction_pointer += 2;
+                if self.input.len() > 0 {
+                    self.write_memory(first, self.input[0]);
+                    //println!("in  {}:{}", self.input[0], first);
+                    self.input.remove(0);
+                    self.instruction_pointer += 2;
+                } else {
+                    return Err(());
+                }
             }
             "04" => {
                 let arg1 = self.load_argument(1)?;
@@ -150,7 +187,7 @@ impl Machine {
                 let second = self.get_memory(arg2)?;
                 if first < second {
                     self.write_memory(arg3, 1);
-                    //println!("less {}:{} {}:{} 1:{}", first, arg1, second, arg2, arg3);
+                //println!("less {}:{} {}:{} 1:{}", first, arg1, second, arg2, arg3);
                 } else {
                     self.write_memory(arg3, 0);
                     //println!("less {}:{} {}:{} 0:{}", first, arg1, second, arg2, arg3);
@@ -165,7 +202,7 @@ impl Machine {
                 let second = self.get_memory(arg2)?;
                 if first == second {
                     self.write_memory(arg3, 1);
-                    //println!("eq {}:{} {}:{} 1:{}", first, arg1, second, arg2, arg3);
+                //println!("eq {}:{} {}:{} 1:{}", first, arg1, second, arg2, arg3);
                 } else {
                     self.write_memory(arg3, 0);
                     //println!("eq {}:{} {}:{} 0:{}", first, arg1, second, arg2, arg3);
